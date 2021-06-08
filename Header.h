@@ -18,15 +18,17 @@ class Arithmetic
 {
     map<char, array<double,3>>CharMap;
     int N;
-    unsigned long long k;
+    int k;
 public:
     Arithmetic();
     Arithmetic(int);
     void PrintMap();
     void CreateMap(ifstream&);
     void Encoded(ifstream&, ofstream&);
+    void Decoded(ifstream&, ofstream&);
     void WriteCap(ofstream&);
     void ReadCap(ifstream&);
+    char FindChar(double);
 };
 
 Arithmetic::Arithmetic()
@@ -56,9 +58,21 @@ void Arithmetic::PrintMap()
 
 void Arithmetic::WriteCap(ofstream& Out) //&
 {
-    Out.put(N); 
-    Out.put(k % N); // кол-во последних
-    Out.put(CharMap.size()); // кол-во символов Map
+    int d = CharMap.size();
+  //  Out.write((char*)&N, sizeof(N));
+   // Out.write((char*)&k, sizeof(k));
+   // Out.write((char*)&d, sizeof(d));
+    Out << N;
+    Out << k;
+    Out << d;
+
+
+  //  Out.put((char)N); 
+  //  Out.put((char)k); // кол-во всех
+   // Out.put((char)d); // кол-во символов Map
+    cout << N << endl << k << endl << d << endl;
+ //   unsigned char u = k;
+   // cout << N << endl << u << endl;
     for (auto it = CharMap.begin(); it != CharMap.end(); it++) // Записываем Map
     {
         Out.write((char*)&it->first, sizeof(it->first)); // Символ
@@ -69,27 +83,30 @@ void Arithmetic::WriteCap(ofstream& Out) //&
 
 void Arithmetic::ReadCap(ifstream& In)
 {
-    unsigned long long M; // кол-во символов в числе
-    int MLast=0;
-    int MapLong=0;
-//    N = M;
+    int MapLong;
     char s;
     double Tr;
-    In.get(s);
-    N = (unsigned long long)s;
-    In.get(s);
-    MLast = (int)s;
-    In.get(s);
-    MapLong = (int)s;
-  //  In.get((char*)MapLong);
-    cout << N << " " << MLast << " " << MapLong << endl;
-    
+   // In.get(s);
+   // N = s;
+   // In.get(s);
+   // k = s;  
+   // In.get(s);
+   // MapLong = s;
+    In >> N;
+    In >> k;
+    In >> MapLong;
+   // In.read((char*)&N, sizeof(N));
+   // In.read((char*)&k, sizeof(k));
+   // In.read((char*)&MapLong, sizeof(MapLong)); 
+    cout << N << endl << k << endl<< MapLong << endl;
     for (int i = 0; i < MapLong; i++)
     {
+        cout << 1 << endl;
         In.read((char*)&s, sizeof(s));
         for (int j = 0; j < 3; j++)
         {
             In.read((char*)&Tr, sizeof(Tr));
+            
             CharMap[s][j] = Tr;
         }
     }
@@ -140,4 +157,35 @@ void Arithmetic::  Encoded(ifstream &In,ofstream &Out)
         }
         Out.put(l2);
     }
+}
+
+void Arithmetic::Decoded(ifstream& In, ofstream& Out)
+{
+    char s;
+    double l1, l2, h1, h2;
+    double x=0;
+    while (k>0) // Запись кода
+    {
+        In.get(s);
+        x = (double)s;
+        for (int i = 0; i < N; i++)
+        {
+            s = FindChar(x);
+            Out.put(s);
+            k--;
+            x = (x - CharMap[s][1]) / (CharMap[s][2] - CharMap[s][1]);
+        }  
+    }
+}
+
+char Arithmetic::FindChar(double x)
+{
+    double a, b;
+    for (auto it = CharMap.begin(); it != CharMap.end(); it++) 
+    {
+        a = it->second[1];
+        b = it->second[2];
+        if (a <= x && x < b) return it->first;
+    }
+    return 1;
 }

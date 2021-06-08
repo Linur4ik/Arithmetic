@@ -26,6 +26,7 @@ public:
     void CreateMap(ifstream&);
     void Encoded(ifstream&, ofstream&);
     void WriteCap(ofstream&);
+    void ReadCap(ifstream&);
 };
 
 Arithmetic::Arithmetic()
@@ -55,13 +56,42 @@ void Arithmetic::PrintMap()
 
 void Arithmetic::WriteCap(ofstream& Out) //&
 {
-    Out.put((k - 1) / N + 1); // кол-во пар
+    Out.put(N); 
     Out.put(k % N); // кол-во последних
     Out.put(CharMap.size()); // кол-во символов Map
     for (auto it = CharMap.begin(); it != CharMap.end(); it++) // Записываем Map
     {
         Out.write((char*)&it->first, sizeof(it->first)); // Символ
         for(int i=0; i < 3 ; i++)   Out.write(reinterpret_cast<const char*>(&(it->second)[i]), sizeof((it->second)[i]));
+    }
+}
+
+
+void Arithmetic::ReadCap(ifstream& In)
+{
+    unsigned long long M; // кол-во символов в числе
+    int MLast=0;
+    int MapLong=0;
+//    N = M;
+    char s;
+    double Tr;
+    In.get(s);
+    N = (unsigned long long)s;
+    In.get(s);
+    MLast = (int)s;
+    In.get(s);
+    MapLong = (int)s;
+  //  In.get((char*)MapLong);
+    cout << N << " " << MLast << " " << MapLong << endl;
+    
+    for (int i = 0; i < MapLong; i++)
+    {
+        In.read((char*)&s, sizeof(s));
+        for (int j = 0; j < 3; j++)
+        {
+            In.read((char*)&Tr, sizeof(Tr));
+            CharMap[s][j] = Tr;
+        }
     }
 }
 

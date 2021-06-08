@@ -38,14 +38,16 @@ Arithmetic::Arithmetic(int n)
 }
 
 
-/*void Arithmetic::PrintMap()
+void Arithmetic::PrintMap()
 {
     for (auto it = CharMap.begin(); it != CharMap.end(); it++)
     {
-        cout << it->first << " - " << it->second << endl;
+        cout << it->first << " - ";
+        show_array(it->second);
     }
+    cout << endl;
 }
-*/
+
 void Arithmetic:: CreateMap(ifstream& In)
 {
     double tr=0;
@@ -54,22 +56,20 @@ void Arithmetic:: CreateMap(ifstream& In)
     for (In.get(s); !In.eof(); In.get(s))
     {
         array<double, 3>Ptr = CharMap[s];
-        Ptr[0] = (Ptr[0] * k + 1) / (k + 1);
+        Ptr[0]++;
         CharMap[s]=Ptr;
         k++;
     }
-    // Считаем границы
+    // РЎС‡РёС‚Р°РµРј РіСЂР°РЅРёС†С‹
     for (auto it = CharMap.begin(); it != CharMap.end(); it++)
     {
         array<double, 3>Ptr = it -> second;
+        Ptr[0] = Ptr[0] / k;
         Ptr[1] = tr;
         Ptr[2] = tr + Ptr[0];
         tr = Ptr[2];
-        cout << it->first << " - ";
-        show_array(it->second);
         it->second = Ptr;
     }
-
     In.clear();
     In.seekg(0, ios_base::beg);
 }

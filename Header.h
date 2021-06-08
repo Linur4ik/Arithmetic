@@ -18,16 +18,20 @@ class Arithmetic
 {
     map<char, array<double,3>>CharMap;
     int N;
+    unsigned long long k;
 public:
     Arithmetic();
     Arithmetic(int);
     void PrintMap();
     void CreateMap(ifstream&);
+    void Encoded(ifstream&, ofstream&);
+    void WriteCap(ofstream&);
 };
 
 Arithmetic::Arithmetic()
 {
     N = 10;
+    k = 0;
 }
 
 
@@ -35,6 +39,7 @@ Arithmetic::Arithmetic(int n)
 {
     if (n < 1 || n > 32) n = 10;
     N = n;
+    k = 0;
 }
 
 
@@ -48,11 +53,24 @@ void Arithmetic::PrintMap()
     cout << endl;
 }
 
+void Arithmetic::WriteCap(ofstream& Out) //&
+{
+    Out.put((k - 1) / N + 1); // кол-во пар
+    Out.put(k % N); // кол-во последних
+    Out.put(CharMap.size()); // кол-во символов Map
+    for (auto it = CharMap.begin(); it != CharMap.end(); it++) // Записываем Map
+    {
+        Out.write((char*)&it->first, sizeof(it->first)); // Символ
+        for(int i=0; i < 3 ; i++)   Out.write(reinterpret_cast<const char*>(&(it->second)[i]), sizeof((it->second)[i]));
+    }
+}
+
+
 void Arithmetic:: CreateMap(ifstream& In)
 {
     double tr=0;
     char s;
-    int k=0;
+    k=0;
     for (In.get(s); !In.eof(); In.get(s))
     {
         array<double, 3>Ptr = CharMap[s];
@@ -72,4 +90,24 @@ void Arithmetic:: CreateMap(ifstream& In)
     }
     In.clear();
     In.seekg(0, ios_base::beg);
+}
+
+
+void Arithmetic::  Encoded(ifstream &In,ofstream &Out)
+{
+    char s;
+    double l1, l2, h1, h2;
+    while (In.get(s)) // Запись кода
+    {
+        l2 = 0;
+        h2 = 1;
+        for (int i = 0; i < N; i++)
+        {
+            l1 = l2 + CharMap[s][1] * (h2 - l2);
+            h1 = l2 + CharMap[s][2] * (h2 - l2);
+            l2 = h1;
+            l2 = l1;
+        }
+        Out.put(l2);
+    }
 }

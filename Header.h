@@ -147,15 +147,17 @@ void Arithmetic::  Encoded(ifstream &In,ofstream &Out)
 
 void Arithmetic::Decoded(ifstream& In, ofstream& Out)
 {
-  
+    int count = 0;
     char s;
     double l1, l2, h1, h2;
     double x;
     while (k>0) // Запись кода
     {
         //In.get(s);
+        l2 = 0;
+        h2 = 0;
         In.read((char*)&x, sizeof(x));
-        cout << x << endl;
+        //cout << x << endl;
       //  x = (double)s;
         //cout << x;
         for (int i = 0; i < N; i++)
@@ -163,12 +165,18 @@ void Arithmetic::Decoded(ifstream& In, ofstream& Out)
             if (k <= 0) break;
             s = FindChar(x);
            
+            
+
             //if (s == 'n') cout << endl << x << endl;
            // cout << s;
             Out.put(s);
             k--;
+            //count++;
+            
+           // if (fabs((x - CharMap[s][1]) - (CharMap[s][2] - CharMap[s][1])) < 0.0000000000000001) cout << "ALLERT";
+            //if (count == 20) cout << endl << CharMap[s][2] << endl;
             x = (x - CharMap[s][1]) / (CharMap[s][2] - CharMap[s][1]);
-
+            
         }  
     }
 }
@@ -180,9 +188,10 @@ char Arithmetic::FindChar(double x)
     {
         a = it->second[1];
         b = it->second[2];
-        if (x >= a && x<b) 
+        if (x >= a - 0.000000001 && x<b-0.000000001)
         {
-            // cout << a << "<=" << x << "<" << b << endl;
+            //cout << x << endl;
+             //cout << a << "<=" << x << "<" << b  << " " << it->first << endl;
             return it->first; 
         }
     }

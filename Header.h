@@ -16,12 +16,13 @@ void show_array(array<double, 3>& Ptr)
 }
 class Arithmetic
 {
-    map<char, array<double,3>>CharMap;
-    int N;
-    int k;
 public:
+    map<char, array<double,3>>CharMap;
+    unsigned int N;
+     int k;
+
     Arithmetic();
-    Arithmetic(int);
+    Arithmetic(unsigned int);
     void PrintMap();
     void CreateMap(ifstream&);
     void Encoded(ifstream&, ofstream&);
@@ -38,7 +39,7 @@ Arithmetic::Arithmetic()
 }
 
 
-Arithmetic::Arithmetic(int n)
+Arithmetic::Arithmetic(unsigned int n)
 {
     if (n < 1 || n > 32) n = 10;
     N = n;
@@ -58,21 +59,10 @@ void Arithmetic::PrintMap()
 
 void Arithmetic::WriteCap(ofstream& Out) //&
 {
-    int d = CharMap.size();
-  //  Out.write((char*)&N, sizeof(N));
-   // Out.write((char*)&k, sizeof(k));
-   // Out.write((char*)&d, sizeof(d));
-    Out << N;
-    Out << k;
-    Out << d;
-
-
-  //  Out.put((char)N); 
-  //  Out.put((char)k); // кол-во всех
-   // Out.put((char)d); // кол-во символов Map
-    cout << N << endl << k << endl << d << endl;
- //   unsigned char u = k;
-   // cout << N << endl << u << endl;
+    unsigned int d = CharMap.size();
+   Out.write((char*)&N, sizeof(N));
+    Out.write((char*)&k, sizeof(k));
+    Out.write((char*)&d, sizeof(d));
     for (auto it = CharMap.begin(); it != CharMap.end(); it++) // Записываем Map
     {
         Out.write((char*)&it->first, sizeof(it->first)); // Символ
@@ -83,30 +73,18 @@ void Arithmetic::WriteCap(ofstream& Out) //&
 
 void Arithmetic::ReadCap(ifstream& In)
 {
-    int MapLong;
+    unsigned int MapLong;
     char s;
     double Tr;
-   // In.get(s);
-   // N = s;
-   // In.get(s);
-   // k = s;  
-   // In.get(s);
-   // MapLong = s;
-    In >> N;
-    In >> k;
-    In >> MapLong;
-   // In.read((char*)&N, sizeof(N));
-   // In.read((char*)&k, sizeof(k));
-   // In.read((char*)&MapLong, sizeof(MapLong)); 
-    cout << N << endl << k << endl<< MapLong << endl;
+   In.read((char*)&N, sizeof(N));
+    In.read((char*)&k, sizeof(k));
+    In.read((char*)&MapLong, sizeof(MapLong)); 
     for (int i = 0; i < MapLong; i++)
     {
-        cout << 1 << endl;
         In.read((char*)&s, sizeof(s));
         for (int j = 0; j < 3; j++)
         {
             In.read((char*)&Tr, sizeof(Tr));
-            
             CharMap[s][j] = Tr;
         }
     }
@@ -144,36 +122,53 @@ void Arithmetic::  Encoded(ifstream &In,ofstream &Out)
 {
     char s;
     double l1, l2, h1, h2;
-    while (In.get(s)) // Запись кода
+    while (1) // Запись кода
     {
         l2 = 0;
         h2 = 1;
         for (int i = 0; i < N; i++)
         {
+            if (!In.get(s))
+            {
+                Out.write((char*)&l2, sizeof(l2));
+                return;
+            }
+            //cout << s;
             l1 = l2 + CharMap[s][1] * (h2 - l2);
             h1 = l2 + CharMap[s][2] * (h2 - l2);
-            l2 = h1;
+            h2 = h1;
             l2 = l1;
         }
-        Out.put(l2);
+        //cout << "e " << l2 << endl;
+        Out.write((char*)&l2, sizeof(l2));
+       // if (!In.get(s)) return;
     }
 }
 
 void Arithmetic::Decoded(ifstream& In, ofstream& Out)
 {
+  
     char s;
     double l1, l2, h1, h2;
-    double x=0;
+    double x;
     while (k>0) // Запись кода
     {
-        In.get(s);
-        x = (double)s;
+        //In.get(s);
+        In.read((char*)&x, sizeof(x));
+        cout << x << endl;
+      //  x = (double)s;
+        //cout << x;
         for (int i = 0; i < N; i++)
         {
+            if (k <= 0) break;
             s = FindChar(x);
+           
+            //if (s == 'n') cout << endl << x << endl;
+           // cout << s;
             Out.put(s);
             k--;
             x = (x - CharMap[s][1]) / (CharMap[s][2] - CharMap[s][1]);
+
         }  
     }
 }
@@ -185,7 +180,10 @@ char Arithmetic::FindChar(double x)
     {
         a = it->second[1];
         b = it->second[2];
-        if (a <= x && x < b) return it->first;
+        if (x >= a && x<b) 
+        {
+            // cout << a << "<=" << x << "<" << b << endl;
+            return it->first; 
+        }
     }
-    return 1;
 }

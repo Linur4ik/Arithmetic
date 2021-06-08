@@ -13,8 +13,11 @@ int main()
     {
         cout << "error";
     }
-    Arithmetic a(10);
+    Arithmetic a(3);
     a.ReadCap(In);
-    a.PrintMap();
+   // a.PrintMap();
+    a.Decoded(In, Out);
+    In.close();
+    Out.close();
     return 0;
 }
